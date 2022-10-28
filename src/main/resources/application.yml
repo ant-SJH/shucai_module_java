@@ -1,0 +1,12 @@
+spring:
+  mqtt:
+    topics: ShuCaiReceived
+    sendTopic: ShuCaiSend
+    url: tcp://127.0.0.1:1883
+    username: admin
+    password: public
+    completionTimeout: 300
+
+serialPort:
+  name: COM6
+  baudRate: 9600
