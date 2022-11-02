@@ -37,7 +37,7 @@ public class ModbusHandler {
      * @param data 数采发送过来的数据
      * @return true-合法
      */
-    private boolean checkDataLegal(byte[] data) {
+    public boolean checkDataLegal(byte[] data) {
         if (data == null || data.length < 2) return false;
         // 判断其crc校验码是否准确
         int len = data.length;
