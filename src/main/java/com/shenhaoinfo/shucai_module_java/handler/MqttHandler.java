@@ -17,19 +17,20 @@ public class MqttHandler {
     @Resource
     private SlaveStationState slaveStationState;
 
+    @Resource
+    private HMUploadHandler hmUploadHandler;
+
     public void handler(String message) {
         try {
             JSONObject json = JSONObject.parseObject(message);
             int address = json.getInteger("Address");
             int funCode = json.getInteger("FunCode");
-            JSONObject data = json.getJSONObject("Data");
 
             if (address == 155 && funCode == 2) {
                 // 标志着机器人任务运动到位
                 slaveStationState.taskArrive();
-            } else if (address == 155 && funCode == 3) {
-                int result = data.getInteger("result");
-                slaveStationState.taskResult(result);
+            } else if (address == 101 || address == 102) {
+                hmUploadHandler.handle(message);
             }
         } catch (Exception e) {
             log.error("mqtt解析数据异常！", e);

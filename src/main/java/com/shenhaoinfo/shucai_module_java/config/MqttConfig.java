@@ -15,11 +15,10 @@ import org.springframework.integration.mqtt.core.MqttPahoClientFactory;
 import org.springframework.integration.mqtt.inbound.MqttPahoMessageDrivenChannelAdapter;
 import org.springframework.integration.mqtt.outbound.MqttPahoMessageHandler;
 import org.springframework.integration.mqtt.support.DefaultPahoMessageConverter;
-import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHandler;
-import org.springframework.messaging.MessagingException;
 
+import java.util.Objects;
 import java.util.UUID;
 
 @Slf4j
@@ -96,18 +95,16 @@ public class MqttConfig {
     @Bean
     @ServiceActivator(inputChannel = "mqttInputChannel")
     public MessageHandler handler() {
-        return new MessageHandler() {
-            //消息消费
-            @Override
-            public void handleMessage(Message<?> message) throws MessagingException {
-                try {
-                    //接收到的主题
-                    String topic = message.getHeaders().get("mqtt_receivedTopic").toString();
-                    String mes = message.getPayload().toString();
-                    mqttHandler.handler(mes);
-                }catch (Exception e){
-                    log.error("解析数据异常",e);
-                }
+        //消息消费
+        return message -> {
+            try {
+                //接收到的主题
+                String topic = Objects.requireNonNull(message.getHeaders().get("mqtt_receivedTopic")).toString();
+                String mes = message.getPayload().toString();
+                log.info("接收到mqtt消息，topic：{}，message：{}", topic, message);
+                mqttHandler.handler(mes);
+            }catch (Exception e){
+                log.error("解析数据异常",e);
             }
         };
     }

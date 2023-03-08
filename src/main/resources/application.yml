@@ -6,7 +6,21 @@ spring:
     username: admin
     password: public
     completionTimeout: 300
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3306/sh_robot?useUnicode=true&characterEncoding=utf-8&serverTimezone=GMT%2B8&useSSL=false
+    username: root
+    password: Shkj@1234!
+    driver-class-name: com.mysql.cj.jdbc.Driver
 
 serialPort:
   name: COM6
   baudRate: 9600
+
+hm:
+  host: http://101.37.75.26:8080/hac_auto/
+  subCode: 8A0731CC39614C90A5D474BC17253713
+  subUserCode: 414A6DB3BBE6419DA3768E6E25127310
+  siteCode: 3301010502
+
+ftp:
+  path: /home/robot/data/ftphome/
