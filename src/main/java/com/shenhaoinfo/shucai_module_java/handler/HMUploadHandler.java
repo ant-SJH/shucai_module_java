@@ -3,6 +3,7 @@ package com.shenhaoinfo.shucai_module_java.handler;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.shenhaoinfo.shucai_module_java.SlaveStationState;
 import com.shenhaoinfo.shucai_module_java.bean.ApiParamNameEnum;
 import com.shenhaoinfo.shucai_module_java.bean.GetParam;
 import com.shenhaoinfo.shucai_module_java.bean.PatrolResult;
@@ -29,6 +30,9 @@ public class HMUploadHandler {
     @Resource
     private SqlService sqlService;
 
+    @Resource
+    private SlaveStationState slaveStationState;
+
     @Value("${ftp.path:/home/robot/data/ftphome/}")
     private String ftpPath;
 
@@ -50,6 +54,9 @@ public class HMUploadHandler {
             TimeUnit.SECONDS.sleep(3);
             fileName = uploadResource(result);
         }
+
+        // 上传到数采平台
+        slaveStationState.taskResult(getResult(result));
 
         // 上传巡检结果至环茂平台
         GetParam param = new GetParam();
