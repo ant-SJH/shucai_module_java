@@ -2,6 +2,7 @@ package com.shenhaoinfo.shucai_module_java.scheduled;
 
 import com.alibaba.fastjson.JSONObject;
 import com.shenhaoinfo.shucai_module_java.SlaveStationState;
+import com.shenhaoinfo.shucai_module_java.config.SerialPortConfig;
 import com.shenhaoinfo.shucai_module_java.util.MqttSend;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -20,11 +21,14 @@ public class SlaveStateScheduled {
     @Resource
     private MqttSend mqttSend;
 
+    @Resource
+    private SerialPortConfig serialPortConfig;
+
     private int lastTaskState;
 
     private boolean lastCanState;
 
-    @Scheduled(fixedDelay = 1000L)
+    @Scheduled(fixedDelay = 1_000)
     public void slaveStateQuery(){
         try {
             int currentTaskState = slaveStationState.getTaskState();
@@ -40,6 +44,11 @@ public class SlaveStateScheduled {
         } catch (Exception e) {
             log.error("", e);
         }
+    }
+
+    @Scheduled(fixedDelay = 10_000)
+    public void checkSerialConnect() {
+        serialPortConfig.checkConnect();
     }
 
     private void sendToRobot() {

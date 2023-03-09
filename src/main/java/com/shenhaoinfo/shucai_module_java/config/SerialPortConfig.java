@@ -35,11 +35,13 @@ public class SerialPortConfig {
 
     private final List<Byte> orders = new ArrayList<>();
 
+    NRSerialPort serialPort = null;
+
     @PostConstruct
     public void init() {
         new Thread(() -> {
             try {
-                NRSerialPort serialPort = new NRSerialPort(serialPortName, baudRate);
+                serialPort = new NRSerialPort(serialPortName, baudRate);
                 serialPort.connect();
 
                 DataInputStream in = new DataInputStream(serialPort.getInputStream());
@@ -48,7 +50,11 @@ public class SerialPortConfig {
                 while (!Thread.interrupted()) {
                     if (in.available() > 0) {
                         try {
-                            byte b = (byte) in.read();
+                            int r = in.read();
+                            if (r == -1) {
+                                break;
+                            }
+                            byte b = (byte) r;
                             if (checkOrderValid(b)) {
                                 byte[] bytes = Bytes.toArray(orders);
                                 // 清空之前接收的信息
@@ -71,7 +77,11 @@ public class SerialPortConfig {
                 } catch (Exception ee) {
                     log.error("", ee);
                 }
-                init();
+            } finally {
+                if (serialPort != null) {
+                    serialPort.disconnect();
+                    serialPort = null;
+                }
             }
         }).start();
     }
@@ -92,5 +102,12 @@ public class SerialPortConfig {
         }
         orders.add(b);
         return false;
+    }
+
+    public void checkConnect() {
+        if (serialPort == null || !serialPort.isConnected()) {
+            log.info("当前串口连接失效，重新建立连接");
+            init();
+        }
     }
 }
