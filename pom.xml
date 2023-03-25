@@ -15,6 +15,12 @@
 	<description>shucai_module_java</description>
 	<properties>
 		<java.version>1.8</java.version>
+		<deploy.directory>target</deploy.directory>
+		<deploy.final.name>${project.artifactId}-${project.version}</deploy.final.name>
+		<source.directory>src/main/java</source.directory>
+		<test.directory>src/test/java</test.directory>
+		<config.directory>src/main/resources</config.directory>
+		<script.directory>bin</script.directory>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -74,29 +80,141 @@
 			<artifactId>mysql-connector-java</artifactId>
 			<scope>runtime</scope>
 		</dependency>
-
-		<dependency>
-			<groupId>com.shenhao.robot</groupId>
-			<artifactId>robot-common</artifactId>
-			<version>1.0-SNAPSHOT</version>
-		</dependency>
 	</dependencies>
 
 	<build>
+		<finalName>${project.artifactId}</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>3.1.0</version>
+				<executions>
+					<execution>
+						<id>copy-resources</id>
+						<phase>validate</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${deploy.directory}/config</outputDirectory>
+							<resources>
+								<resource>
+									<directory>${config.directory}</directory>
+									<filtering>true</filtering>
+								</resource>
+
+							</resources>
+						</configuration>
+					</execution>
+					<execution>
+						<id>copy-scripts</id>
+						<phase>validate</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${deploy.directory}/bin</outputDirectory>
+							<resources>
+								<resource>
+									<directory>${script.directory}</directory>
+									<filtering>true</filtering>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
 				<configuration>
-					<excludes>
-						<exclude>
-							<groupId>org.projectlombok</groupId>
-							<artifactId>lombok</artifactId>
-						</exclude>
-					</excludes>
+					<descriptors>
+						<descriptor>assembly.xml</descriptor>
+					</descriptors>
+				</configuration>
+				<executions>
+					<execution>
+						<id>make-assembly</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<finalName>${project.artifactId}</finalName>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>pl.project13.maven</groupId>
+				<artifactId>git-commit-id-plugin</artifactId>
+				<version>2.2.5</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>revision</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<verbose>true</verbose>
+					<dateFormat>yyyy-MM-dd'T'HH:mm:ssZ</dateFormat>
+					<generateGitPropertiesFile>true</generateGitPropertiesFile>
+					<generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
 				</configuration>
 			</plugin>
+
 		</plugins>
 	</build>
+
+	<profiles>
+		<profile>
+			<id>prod</id>
+			<properties>
+				<profiles.active>prod</profiles.active>
+				<jvm.Xmx>2560m</jvm.Xmx>
+				<jvm.Xms>2560m</jvm.Xms>
+				<jvm.Xmn>1024m</jvm.Xmn>
+				<jvm.Xss>256k</jvm.Xss>
+				<jvm.permsize>128m</jvm.permsize>
+				<log.home.dir>${user.dir}/logs</log.home.dir>
+				<libScope>compile</libScope>
+			</properties>
+		</profile>
+		<profile>
+			<id>test</id>
+			<properties>
+				<profiles.active>test</profiles.active>
+				<jvm.Xmx>512m</jvm.Xmx>
+				<jvm.Xms>5124m</jvm.Xms>
+				<jvm.Xmn>128m</jvm.Xmn>
+				<jvm.Xss>256k</jvm.Xss>
+				<jvm.permsize>64m</jvm.permsize>
+				<log.home.dir>${user.dir}/logs</log.home.dir>
+				<libScope>compile</libScope>
+			</properties>
+		</profile>
+		<profile>
+			<id>dev</id>
+			<properties>
+				<profiles.active>dev</profiles.active>
+				<jvm.Xmx>128m</jvm.Xmx>
+				<jvm.Xms>128m</jvm.Xms>
+				<jvm.Xmn>58m</jvm.Xmn>
+				<jvm.Xss>256k</jvm.Xss>
+				<jvm.permsize>64m</jvm.permsize>
+				<log.home.dir>${user.dir}/logs</log.home.dir>
+				<libScope>compile</libScope>
+			</properties>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+		</profile>
+	</profiles>
 
 </project>
