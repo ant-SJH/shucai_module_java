@@ -1,0 +1,1 @@
+java -jar -Dspring.config.location=../config/application.yml ../robot-platform-web.jar
