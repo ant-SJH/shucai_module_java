@@ -1,7 +1,7 @@
 package com.shenhaoinfo.shucai_module_java.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.shenhao.robot.po.Task;
+import com.shenhaoinfo.shucai_module_java.entity.Task;
 import com.shenhaoinfo.shucai_module_java.mapper.TaskMapper;
 import com.shenhaoinfo.shucai_module_java.service.SqlService;
 import org.springframework.stereotype.Service;

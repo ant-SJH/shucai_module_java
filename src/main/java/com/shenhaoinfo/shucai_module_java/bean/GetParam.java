@@ -1,5 +1,6 @@
 package com.shenhaoinfo.shucai_module_java.bean;
 
+import lombok.Builder;
 import lombok.Data;
 
 import java.util.Date;
@@ -9,6 +10,7 @@ import java.util.Date;
  * @date 2023/2/9
  */
 @Data
+@Builder
 public class GetParam {
     /**
      * 巡检结果，1-正常，0-异常

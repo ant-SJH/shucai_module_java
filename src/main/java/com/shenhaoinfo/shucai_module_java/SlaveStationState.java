@@ -12,6 +12,8 @@ import static com.shenhaoinfo.shucai_module_java.util.ModbusUtils.addCrc;
  */
 @Component
 public class SlaveStationState {
+    public static volatile long lastTaskTime = 0;
+
     private final int MAX_LENGTH = 20;
 
     private final byte[] slaveStationState = new byte[MAX_LENGTH];
@@ -37,6 +39,8 @@ public class SlaveStationState {
         // 在开始任务前清零各种状态
         Arrays.fill(slaveStationState, (byte) 0);
         System.arraycopy(order, 7, slaveStationState, (address-1)*2, num*2);
+        // 将任务下发时间记录下来
+        lastTaskTime = System.currentTimeMillis();
         byte[] data = new byte[8];
         System.arraycopy(order, 0, data, 0, 6);
         addCrc(data);
@@ -55,6 +59,14 @@ public class SlaveStationState {
         slaveStationState[9] = 1;
         // 更新任务结果值
         slaveStationState[11] = (byte) result;
+    }
+
+    public void taskError() {
+        // 将1号寄存器清零
+        slaveStationState[0] = 0;
+        slaveStationState[1] = 0;
+        // 将8号寄存器置为1表示任务异常
+        slaveStationState[15] = 1;
     }
 
     public boolean isCanContinue() {

@@ -18,7 +18,6 @@ import org.springframework.integration.mqtt.support.DefaultPahoMessageConverter;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHandler;
 
-import java.util.Objects;
 import java.util.UUID;
 
 @Slf4j
@@ -43,7 +42,7 @@ public class MqttConfig {
         MqttConnectOptions mqttConnectOptions = new MqttConnectOptions();
         mqttConnectOptions.setUserName(username);
         mqttConnectOptions.setKeepAliveInterval(2);
-        mqttConnectOptions.setMaxInflight(100000000);
+        mqttConnectOptions.setMaxInflight(5000);
         mqttConnectOptions.setPassword(password.toCharArray());
         mqttConnectOptions.setServerURIs(new String[]{hostUrl});
         mqttConnectOptions.setConnectionTimeout(completionTimeout);
@@ -99,9 +98,7 @@ public class MqttConfig {
         return message -> {
             try {
                 //接收到的主题
-                String topic = Objects.requireNonNull(message.getHeaders().get("mqtt_receivedTopic")).toString();
                 String mes = message.getPayload().toString();
-                log.info("接收到mqtt消息，topic：{}，message：{}", topic, message);
                 mqttHandler.handler(mes);
             }catch (Exception e){
                 log.error("解析数据异常",e);

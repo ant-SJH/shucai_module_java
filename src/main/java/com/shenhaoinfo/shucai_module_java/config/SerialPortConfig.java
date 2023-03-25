@@ -8,12 +8,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author jinhang
@@ -37,7 +37,6 @@ public class SerialPortConfig {
 
     NRSerialPort serialPort = null;
 
-    @PostConstruct
     public void init() {
         new Thread(() -> {
             try {
@@ -69,14 +68,10 @@ public class SerialPortConfig {
                             log.error("解析信令异常！", e);
                         }
                     }
+                    TimeUnit.MICROSECONDS.sleep(10);
                 }
             } catch (Exception e) {
                 log.error("接收serialPort异常！" , e);
-                try {
-                    Thread.sleep(3000);
-                } catch (Exception ee) {
-                    log.error("", ee);
-                }
             } finally {
                 if (serialPort != null) {
                     serialPort.disconnect();
@@ -106,7 +101,7 @@ public class SerialPortConfig {
 
     public void checkConnect() {
         if (serialPort == null || !serialPort.isConnected()) {
-            log.info("当前串口连接失效，重新建立连接");
+            log.info("尝试与串口号：{}，建立一个新连接", serialPortName);
             init();
         }
     }
