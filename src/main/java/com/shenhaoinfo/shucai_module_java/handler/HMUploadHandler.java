@@ -66,7 +66,7 @@ public class HMUploadHandler {
             r = r == task.getDeviceNum() ? 1 : 0;
             slaveStationState.taskResult(r);
             log.info("任务结束，上传给数采的结果为：{}", r);
-            task = null;
+            task.setFinishedTime(System.currentTimeMillis());
         } else if (task != null && task.getCurrentDeviceNum() < task.getDeviceNum()) {
             task.setCurrentDeviceNum(task.getCurrentDeviceNum() + 1);
             task.setTaskResult(task.getTaskResult() + getResult(result));

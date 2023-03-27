@@ -10,6 +10,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Slf4j
@@ -25,37 +27,42 @@ public class SlaveStateScheduled {
     @Resource
     private SerialPortConfig serialPortConfig;
 
-    private int lastTaskState;
-
     private boolean lastCanState;
 
     public static Task task;
+
+    public static List<Task> taskList = new ArrayList<>();
 
     @Scheduled(fixedDelay = 1_000)
     public void slaveStateQuery(){
         try {
             // 检测数采是否有任务下发
-            int currentTaskState = slaveStationState.getTaskState();
-            if (currentTaskState == 1 && lastTaskState == 0) {
+            if (task == null && taskList.size() > 0) {
+                task = taskList.get(0);
+                slaveStationState.taskStart(task);
                 sendToRobot();
             }
-            lastTaskState = currentTaskState;
-
-            // 检测机器人是否到达目标点位并且等待数采打开柜门
-            if (slaveStationState.isCanContinue() && !lastCanState) {
-                mqttSend.sendMessage("{\"Address\": 155,\"FunCode\": 2}");
-                if (task != null) {
-                    task.setDoorOpen(true);
-                }
-            }
-            lastCanState = slaveStationState.isCanContinue();
 
             // 判断任务是否超时
             if (task != null) {
+                // 检测机器人是否到达目标点位并且等待数采打开柜门
+                if (slaveStationState.isCanContinue() && !lastCanState) {
+                    mqttSend.sendMessage("{\"Address\": 155,\"FunCode\": 2}");
+                    if (task != null) {
+                        task.setDoorOpen(true);
+                    }
+                }
+                lastCanState = slaveStationState.isCanContinue();
+
                 long gap = System.currentTimeMillis() - task.getLastReceivedTaskTime();
                 if (gap > 10 * 60 * 1000) {
                     log.info("长时间未收到机器人任务信息，终止该任务");
                     slaveStationState.taskError();
+                    taskList.remove(task);
+                    task = null;
+                } else if (task.getFinishedTime() != 0 && System.currentTimeMillis() - task.getFinishedTime() > 30_000) {
+                    // 任务已完成超过30s，数采应该已经读取到任务完成信号，开始下一个任务
+                    taskList.remove(task);
                     task = null;
                 }
             }
@@ -71,7 +78,7 @@ public class SlaveStateScheduled {
 
     private void sendToRobot() {
         byte[] b = slaveStationState.getTaskInfo();
-        log.info("接收到来自数采的任务，接口号：{}，任务号：{}", b[0], b[1]);
+        log.info("开始执行来自数采的任务，接口号：{}，任务号：{}", b[0], b[1]);
         JSONObject data = new JSONObject();
         data.put("interfaceCode", b[0]);
         data.put("taskNum", b[1]);
@@ -84,7 +91,12 @@ public class SlaveStateScheduled {
 
         // 创建任务
         int deviceNum = b[0]==20 ? 2 : 1;
-        task = Task.builder().time(System.currentTimeMillis()).deviceNum(deviceNum).currentDeviceNum(1).
-                lastReceivedTaskTime(System.currentTimeMillis()).taskResult(0).isDoorOpen(false).build();
+        task.setTime(System.currentTimeMillis());
+        task.setDeviceNum(deviceNum);
+        task.setCurrentDeviceNum(1);
+        task.setLastReceivedTaskTime(System.currentTimeMillis());
+        task.setTaskResult(0);
+        task.setDoorOpen(false);
+        task.setFinishedTime(0);
     }
 }

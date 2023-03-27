@@ -18,6 +18,16 @@ public class Task {
     private long time;
 
     /**
+     * 任务接口号
+     */
+    private int interfaceNum;
+
+    /**
+     * 任务号
+     */
+    private int taskNum;
+
+    /**
      * 任务点位数量
      */
     private int deviceNum;
@@ -41,4 +51,9 @@ public class Task {
      * 判断柜门是否已打开
      */
     private boolean isDoorOpen;
+
+    /**
+     * 当前任务完成时间
+     */
+    private long finishedTime;
 }
