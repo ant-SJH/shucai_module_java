@@ -14,6 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import javax.annotation.Resource;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.FileNotFoundException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Set;
@@ -110,7 +111,7 @@ class ShucaiModuleJavaApplicationTests {
     }
 
     @Test
-    public void uploadTest() {
+    public void uploadTest() throws FileNotFoundException {
         String filePath = "C:\\Users\\songj\\Desktop\\upload.jpg";
         uploadService.uploadFile(filePath);
     }

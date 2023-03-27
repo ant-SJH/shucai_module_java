@@ -2,16 +2,21 @@ package com.shenhaoinfo.shucai_module_java.scheduled;
 
 import com.alibaba.fastjson.JSONObject;
 import com.shenhaoinfo.shucai_module_java.SlaveStationState;
+import com.shenhaoinfo.shucai_module_java.bean.PatrolResult;
 import com.shenhaoinfo.shucai_module_java.bean.Task;
 import com.shenhaoinfo.shucai_module_java.config.SerialPortConfig;
+import com.shenhaoinfo.shucai_module_java.service.UploadService;
 import com.shenhaoinfo.shucai_module_java.util.MqttSend;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.shenhaoinfo.shucai_module_java.util.UploadUtil.needUploadList;
 
 
 @Slf4j
@@ -26,6 +31,9 @@ public class SlaveStateScheduled {
 
     @Resource
     private SerialPortConfig serialPortConfig;
+
+    @Resource
+    private UploadService uploadService;
 
     private boolean lastCanState;
 
@@ -74,6 +82,32 @@ public class SlaveStateScheduled {
     @Scheduled(fixedDelay = 30_000)
     public void checkSerialConnect() {
         serialPortConfig.checkConnect();
+    }
+
+    @Scheduled(fixedDelay = 30_000)
+    public void uploadPatrolResult() {
+        if (needUploadList != null && needUploadList.size() > 0) {
+            PatrolResult result = needUploadList.get(0);
+            try {
+                log.info("尝试上传之前上传失败的结果");
+                boolean flag = uploadService.uploadPatrolResult(result);
+                if (flag) {
+                    log.info("本次上传巡检结果至环茂平台成功！");
+                    needUploadList.remove(result);
+                } else {
+                    log.info("本次上传失败！");
+                }
+            } catch (InterruptedException e) {
+                log.error("", e);
+            } catch (FileNotFoundException e) {
+                log.error("文件不存在，上传失败！", e);
+                needUploadList.remove(result);
+            }
+            // 清除过多的等待上传结果，避免内存溢出
+            if (needUploadList.size() > 1000) {
+                needUploadList.clear();
+            }
+        }
     }
 
     private void sendToRobot() {
