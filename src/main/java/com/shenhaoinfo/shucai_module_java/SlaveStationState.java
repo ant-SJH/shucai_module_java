@@ -64,6 +64,8 @@ public class SlaveStationState {
             Task lastTask = taskList.get(taskList.size() - 1);
             if (lastTask.getInterfaceNum() != task.getInterfaceNum() || lastTask.getTaskNum() != task.getTaskNum()) {
                 taskList.add(task);
+            } else {
+                log.info("重复任务，不添加进任务列表");
             }
         } else {
             taskList.add(task);

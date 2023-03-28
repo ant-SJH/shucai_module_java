@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.shenhaoinfo.shucai_module_java.SlaveStationState;
 import com.shenhaoinfo.shucai_module_java.bean.PatrolResult;
 import com.shenhaoinfo.shucai_module_java.bean.Task;
-import com.shenhaoinfo.shucai_module_java.config.SerialPortConfig;
 import com.shenhaoinfo.shucai_module_java.service.UploadService;
 import com.shenhaoinfo.shucai_module_java.util.MqttSend;
 import lombok.extern.slf4j.Slf4j;
@@ -23,26 +22,18 @@ import static com.shenhaoinfo.shucai_module_java.util.UploadUtil.needUploadList;
 @Component
 public class SlaveStateScheduled {
 
+    public static Task task;
+    public static List<Task> taskList = new ArrayList<>();
     @Resource
     private SlaveStationState slaveStationState;
-
     @Resource
     private MqttSend mqttSend;
-
-    @Resource
-    private SerialPortConfig serialPortConfig;
-
     @Resource
     private UploadService uploadService;
-
     private boolean lastCanState;
 
-    public static Task task;
-
-    public static List<Task> taskList = new ArrayList<>();
-
     @Scheduled(fixedDelay = 1_000)
-    public void slaveStateQuery(){
+    public void slaveStateQuery() {
         try {
             // 检测数采是否有任务下发
             if (task == null && taskList.size() > 0) {
@@ -77,11 +68,6 @@ public class SlaveStateScheduled {
         } catch (Exception e) {
             log.error("", e);
         }
-    }
-
-    @Scheduled(fixedDelay = 30_000)
-    public void checkSerialConnect() {
-        serialPortConfig.checkConnect();
     }
 
     @Scheduled(fixedDelay = 30_000)
@@ -124,7 +110,7 @@ public class SlaveStateScheduled {
         mqttSend.sendMessage(json.toJSONString());
 
         // 创建任务
-        int deviceNum = b[0]==20 ? 2 : 1;
+        int deviceNum = b[0] == 20 ? 2 : 1;
         task.setTime(System.currentTimeMillis());
         task.setDeviceNum(deviceNum);
         task.setCurrentDeviceNum(1);

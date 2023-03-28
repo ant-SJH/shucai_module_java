@@ -6,18 +6,14 @@ import com.shenhaoinfo.shucai_module_java.bean.ApiParamNameEnum;
 import com.shenhaoinfo.shucai_module_java.bean.GetParam;
 import com.shenhaoinfo.shucai_module_java.service.UploadService;
 import com.shenhaoinfo.shucai_module_java.util.MqttSend;
-import gnu.io.NRSerialPort;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.annotation.Resource;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.FileNotFoundException;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.Set;
 
 @SpringBootTest
 @Slf4j
@@ -48,37 +44,6 @@ class ShucaiModuleJavaApplicationTests {
 
     @Test
     void contextLoads() {
-    }
-
-    @Test
-    public void getSerialPortName() {
-        Set<String> serialPortNames = NRSerialPort.getAvailableSerialPorts();
-        log.info(serialPortNames.toString());
-    }
-
-    @Test
-    public void connectSerialPort() {
-        String serialPortName = "COM4";
-        int baudRate = 9600;
-        NRSerialPort serialPort = new NRSerialPort(serialPortName, baudRate);
-        serialPort.connect();
-
-        DataInputStream in = new DataInputStream(serialPort.getInputStream());
-        DataOutputStream out = new DataOutputStream(serialPort.getOutputStream());
-
-        try {
-            while (!Thread.interrupted()) {
-                if (in.available() > 0) {
-                    byte[] b = new byte[in.available()];
-                    int len = in.read(b);
-                    log.info("len={}，b={}", len, HexUtil.format(HexUtil.encodeHexStr(b, false)));
-                    out.write(b);
-                    out.flush();
-                }
-            }
-        } catch (Exception e) {
-            log.error("", e);
-        }
     }
 
     @Test
@@ -118,13 +83,7 @@ class ShucaiModuleJavaApplicationTests {
 
     @Test
     public void uploadTest2() {
-        GetParam param = GetParam.builder()
-                .fileName("57B58BCB4B5246989402441D431DCAEB.jpg")
-                .deviceCode("0001")
-                .time(new Date())
-                .desc("")
-                .result(1)
-                .build();
+        GetParam param = GetParam.builder().fileName("57B58BCB4B5246989402441D431DCAEB.jpg").deviceCode("0001").time(new Date()).desc("").result(1).build();
         uploadService.uploadData(ApiParamNameEnum.T01_CAPTURE_QC_STATUS, param);
     }
 
