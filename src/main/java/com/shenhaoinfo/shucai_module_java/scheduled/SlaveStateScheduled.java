@@ -57,17 +57,21 @@ public class SlaveStateScheduled {
                 if (gap > 10 * 60 * 1000) {
                     log.info("长时间未收到机器人任务信息，终止该任务");
                     slaveStationState.taskError();
-                    taskList.remove(task);
-                    task = null;
+                    taskFinish();
                 } else if (task.getFinishedTime() != 0 && System.currentTimeMillis() - task.getFinishedTime() > 30_000) {
                     // 任务已完成超过30s，数采应该已经读取到任务完成信号，开始下一个任务
-                    taskList.remove(task);
-                    task = null;
+                    taskFinish();
                 }
             }
         } catch (Exception e) {
             log.error("", e);
         }
+    }
+
+    private void taskFinish() {
+        taskList.remove(task);
+        task = null;
+        slaveStationState.taskFinish();
     }
 
     @Scheduled(fixedDelay = 30_000)

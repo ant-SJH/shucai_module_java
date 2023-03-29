@@ -102,6 +102,10 @@ public class SlaveStationState {
         slaveStationState[15] = 1;
     }
 
+    public void taskFinish() {
+        Arrays.fill(slaveStationState, (byte) 0);
+    }
+
     public boolean isCanContinue() {
         return slaveStationState[13] == 1;
     }
