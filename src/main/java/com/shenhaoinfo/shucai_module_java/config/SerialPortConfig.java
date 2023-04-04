@@ -57,6 +57,8 @@ public class SerialPortConfig {
         if (!serialPort.openPort()) {
             log.info("打开串口异常！");
             return;
+        } else {
+            log.info("打开串口成功！");
         }
         serialPort.setFlowControl(SerialPort.FLOW_CONTROL_DISABLED);
         serialPort.setComPortParameters(baudRate, 8, SerialPort.TWO_STOP_BITS, SerialPort.NO_PARITY);
@@ -76,11 +78,11 @@ public class SerialPortConfig {
                     while (serialPort.bytesAvailable() != 0) {
                         byte[] data = new byte[1];
                         serialPort.readBytes(data, 1);
-                        log.info("读取到数据为：{}", HexUtil.format(HexUtil.encodeHexStr(data, false)));
+                        log.info("读取到的数据为：{}", HexUtil.format(HexUtil.encodeHexStr(data, false)));
                         if (checkOrderValid(data[0])) {
                             byte[] order = Bytes.toArray(orders);
                             orders.clear();
-                            log.info("读取到数据为：{}", HexUtil.format(HexUtil.encodeHexStr(order, false)));
+                            log.info("通过校验的数据为：{}", HexUtil.format(HexUtil.encodeHexStr(order, false)));
                             byte[] reply = modbusHandler.handler(order);
                             serialPort.writeBytes(reply, reply.length);
                             log.info("返回给主站信息：{}", HexUtil.format(HexUtil.encodeHexStr(reply, false)));
@@ -98,6 +100,7 @@ public class SerialPortConfig {
 
     public boolean checkOrderValid(Byte b) {
         if (orders.isEmpty()) {
+            log.info("order为空，接收第一个字符");
             firstByteTime = System.currentTimeMillis();
             if (b != 0x01) {
                 return false;
@@ -106,6 +109,7 @@ public class SerialPortConfig {
             long gap = System.currentTimeMillis() - firstByteTime;
             if (gap > 1000) {
                 orders.clear();
+                return checkOrderValid(b);
             } else {
                 // 当接收到的字符间隔时间小于1s，说明是同一条信令，检查其合法性
                 orders.add(b);

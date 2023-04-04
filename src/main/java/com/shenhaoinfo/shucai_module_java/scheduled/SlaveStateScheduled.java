@@ -54,10 +54,10 @@ public class SlaveStateScheduled {
                 lastCanState = slaveStationState.isCanContinue();
 
                 long gap = System.currentTimeMillis() - task.getLastReceivedTaskTime();
-                if (gap > 10 * 60 * 1000) {
+                if (gap > 10 * 60 * 1000 && task.getFinishedTime() == 0) {
                     log.info("长时间未收到机器人任务信息，终止该任务");
                     slaveStationState.taskError();
-                    taskFinish();
+                    task.setFinishedTime(System.currentTimeMillis());
                 } else if (task.getFinishedTime() != 0 && System.currentTimeMillis() - task.getFinishedTime() > 30_000) {
                     // 任务已完成超过30s，数采应该已经读取到任务完成信号，开始下一个任务
                     taskFinish();
@@ -72,6 +72,7 @@ public class SlaveStateScheduled {
         taskList.remove(task);
         task = null;
         slaveStationState.taskFinish();
+        log.info("当前剩余未执行任务数量：{}", taskList.size());
     }
 
     @Scheduled(fixedDelay = 30_000)
