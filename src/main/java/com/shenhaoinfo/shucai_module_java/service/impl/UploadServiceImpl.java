@@ -7,6 +7,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.shenhaoinfo.shucai_module_java.bean.*;
 import com.shenhaoinfo.shucai_module_java.service.SqlService;
 import com.shenhaoinfo.shucai_module_java.service.UploadService;
+import com.shenhaoinfo.shucai_module_java.util.FFmpegUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -57,6 +58,7 @@ public class UploadServiceImpl implements UploadService {
     @Override
     public String uploadFile(String filePath) throws FileNotFoundException {
         try {
+            filePath = FFmpegUtil.convertVideo2H264(filePath);
             File file = new File(filePath);
             String url = host + "uploadFile?param_name=upLoadFile";
             String result = HttpRequest.post(url)
