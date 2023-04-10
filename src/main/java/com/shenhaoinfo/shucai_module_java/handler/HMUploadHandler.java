@@ -9,8 +9,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-
 import java.io.FileNotFoundException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.shenhaoinfo.shucai_module_java.scheduled.SlaveStateScheduled.task;
 import static com.shenhaoinfo.shucai_module_java.util.UploadUtil.getResult;
@@ -24,9 +25,9 @@ import static com.shenhaoinfo.shucai_module_java.util.UploadUtil.needUploadList;
 @Component
 @Slf4j
 public class HMUploadHandler {
+    private static final Pattern REG_PATTERN = Pattern.compile("\\d+_\\d+_\\d+");
     @Resource
     private UploadService uploadService;
-
     @Resource
     private SlaveStationState slaveStationState;
 
@@ -72,8 +73,10 @@ public class HMUploadHandler {
      * 过滤无效信息
      */
     private boolean filterMessage(int address, int funCode, PatrolResult result) {
+        String taskId = result.getTaskid();
+        Matcher matcher = REG_PATTERN.matcher(taskId);
         boolean flag = !(address == 101 && funCode == 2 && !"9".equals(result.getStatus())) &&
                 !(address == 102 && funCode == 1 && !"9".equals(result.getStatus()));
-        return flag || task == null;
+        return !matcher.matches() || flag || task == null;
     }
 }
