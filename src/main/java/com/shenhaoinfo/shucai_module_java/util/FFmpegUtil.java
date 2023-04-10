@@ -72,7 +72,11 @@ public class FFmpegUtil {
         try {
             job.run();
             // clean file
-            Files.delete(path);
+            try {
+                Files.delete(path);
+            } catch (IOException e) {
+                log.warn("源文件:{} 删除失败", filePath, e);
+            }
             return dest;
         } catch (Exception e) {
             log.error("转换视频错误", e);
