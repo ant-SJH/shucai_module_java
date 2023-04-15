@@ -11,7 +11,9 @@ import javax.annotation.Resource;
 
 /**
  * @author jinhang
- * @date 2022/10/26
+ * <p>
+ * date 2022/10/26
+ * </p>
  */
 @Component
 @Slf4j
@@ -34,7 +36,7 @@ public class MqttHandler {
             int address = json.getInteger("Address");
             int funCode = json.getInteger("FunCode");
 
-            if (address == 9 && funCode == 7 && SlaveStateScheduled.task!=null) {
+            if (address == 9 && funCode == 7 && SlaveStateScheduled.task != null) {
                 log.info("接收到机器人任务数据，{}", message);
                 SlaveStateScheduled.task.setLastReceivedTaskTime(System.currentTimeMillis());
             } else if (address == 101 && (funCode == 16 || funCode == 17)) {
@@ -51,7 +53,7 @@ public class MqttHandler {
                 }
             }
         } catch (Exception e) {
-            log.error("mqtt解析数据异常！", e);
+            log.error("mqtt解析数据异常!,message:{}", message, e);
         }
     }
 }
