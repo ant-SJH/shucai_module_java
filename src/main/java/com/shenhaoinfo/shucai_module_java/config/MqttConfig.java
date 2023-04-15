@@ -41,7 +41,8 @@ public class MqttConfig {
     public MqttConnectOptions getMqttConnectOptions() {
         MqttConnectOptions mqttConnectOptions = new MqttConnectOptions();
         mqttConnectOptions.setUserName(username);
-        mqttConnectOptions.setKeepAliveInterval(2);
+        // 默认 keepAlive 是 60秒
+//        mqttConnectOptions.setKeepAliveInterval(2);
         mqttConnectOptions.setMaxInflight(5000);
         mqttConnectOptions.setPassword(password.toCharArray());
         mqttConnectOptions.setServerURIs(new String[]{hostUrl});

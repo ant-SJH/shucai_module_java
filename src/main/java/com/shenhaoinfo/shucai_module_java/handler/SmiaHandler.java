@@ -15,7 +15,9 @@ import java.util.Date;
 
 /**
  * @author jinhang
- * @date 2023/3/14
+ * <p>
+ *  date 2023/3/14
+ * </p>
  */
 @Slf4j
 @Component
@@ -28,7 +30,6 @@ public class SmiaHandler {
         int address = json.getInteger("Address");
         int funCode = json.getInteger("FunCode");
         JSONObject data = json.getJSONObject("Data");
-
         if (address == 101 && funCode == 16) {
             uploadInvade(data);
         } else if (address == 101 && funCode == 17) {

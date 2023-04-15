@@ -63,25 +63,30 @@ public class FFmpegUtil {
         }
         String dest = Paths.get(path.getParent().toString(), UUID.randomUUID() + ".mp4").toString();
         FFmpegJob job = EXECUTOR.createJob(new FFmpegBuilder()
+                .addExtraArgs("-vsync 0 -hwaccel cuvid -c:v h264_cuvid".split(" "))
                 .overrideOutputFiles(true) // Override the output if it exists
                 .setInput(filePath)
                 .addOutput(dest)
-                .setFormat("mp4")                  // Format is inferred from filename, or can be set
-                .setVideoCodec("libx264").done());
+                .addExtraArgs("-c:a copy -c:v h264_nvenc -b:v 5M".split(" "))
+                .done());
         // execute synchronized
         try {
             job.run();
             // clean file
-            try {
-                Files.delete(path);
-            } catch (IOException e) {
-                log.warn("源文件:{} 删除失败", filePath, e);
-            }
+//            try {
+//                Files.delete(path);
+//            } catch (IOException e) {
+//                log.warn("源文件:{} 删除失败", filePath, e);
+//            }
             return dest;
         } catch (Exception e) {
             log.error("转换视频错误", e);
             return filePath;
         }
+    }
+
+    public static void main(String[] args) {
+        convertVideo2H264("F:\\mj.mp4");
     }
 
 }
