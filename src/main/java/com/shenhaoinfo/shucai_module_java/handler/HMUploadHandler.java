@@ -6,6 +6,7 @@ import com.shenhaoinfo.shucai_module_java.SlaveStationState;
 import com.shenhaoinfo.shucai_module_java.bean.PatrolResult;
 import com.shenhaoinfo.shucai_module_java.service.UploadService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -19,8 +20,10 @@ import static com.shenhaoinfo.shucai_module_java.util.UploadUtil.needUploadList;
 
 /**
  * @author jinhang
- * @date 2023/2/9
+ * <p>
+ * date 2023/2/9
  * 用于将结果上传到环茂服务器上
+ * </p>
  */
 @Component
 @Slf4j
@@ -74,6 +77,10 @@ public class HMUploadHandler {
      */
     private boolean filterMessage(int address, int funCode, PatrolResult result) {
         String taskId = result.getTaskid();
+        // taskId 为空 直接过滤
+        if (StringUtils.isBlank(taskId)) {
+            return true;
+        }
         Matcher matcher = REG_PATTERN.matcher(taskId);
         boolean flag = !(address == 101 && funCode == 2 && !"9".equals(result.getStatus())) &&
                 !(address == 102 && funCode == 1 && !"9".equals(result.getStatus()));
