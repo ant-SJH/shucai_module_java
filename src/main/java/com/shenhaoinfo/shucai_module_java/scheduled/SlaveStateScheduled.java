@@ -78,22 +78,27 @@ public class SlaveStateScheduled {
     @Scheduled(fixedDelay = 30_000)
     public void uploadPatrolResult() {
         if (needUploadList != null && needUploadList.size() > 0) {
-            PatrolResult result = needUploadList.get(0);
-            try {
-                log.info("尝试上传之前上传失败的结果");
-                boolean flag = uploadService.uploadPatrolResult(result);
-                if (flag) {
-                    log.info("本次上传巡检结果至环茂平台成功！");
+            for (int i = 0; i < needUploadList.size(); i++) {
+                PatrolResult result = needUploadList.get(i);
+                try {
+                    log.info("尝试上传之前上传失败的结果");
+                    boolean flag = uploadService.uploadPatrolResult(result);
+                    if (flag) {
+                        log.info("本次上传巡检结果至环茂平台成功！");
+                        needUploadList.remove(result);
+                        i = i-1;
+                    } else {
+                        log.info("本次上传失败！");
+                    }
+                } catch (InterruptedException e) {
+                    log.error("", e);
+                } catch (FileNotFoundException e) {
+                    log.error("文件不存在，上传失败！", e);
                     needUploadList.remove(result);
-                } else {
-                    log.info("本次上传失败！");
+                    i = i-1;
                 }
-            } catch (InterruptedException e) {
-                log.error("", e);
-            } catch (FileNotFoundException e) {
-                log.error("文件不存在，上传失败！", e);
-                needUploadList.remove(result);
             }
+
             // 清除过多的等待上传结果，避免内存溢出
             if (needUploadList.size() > 1000) {
                 needUploadList.clear();

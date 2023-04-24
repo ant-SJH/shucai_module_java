@@ -76,6 +76,9 @@ public class HMUploadHandler {
      * 过滤无效信息
      */
     private boolean filterMessage(int address, int funCode, PatrolResult result) {
+        if (result == null) {
+            return true;
+        }
         String taskId = result.getTaskid();
         // taskId 为空 直接过滤
         if (StringUtils.isBlank(taskId)) {

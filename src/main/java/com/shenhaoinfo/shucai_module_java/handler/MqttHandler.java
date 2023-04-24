@@ -53,7 +53,7 @@ public class MqttHandler {
                 }
             }
         } catch (Exception e) {
-            log.error("mqtt解析数据异常!,message:{}", message, e);
+            log.error("mqtt解析数据异常!,message: " + message, e);
         }
     }
 }

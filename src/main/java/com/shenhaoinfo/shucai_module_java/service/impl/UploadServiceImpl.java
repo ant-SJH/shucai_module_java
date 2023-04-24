@@ -80,6 +80,9 @@ public class UploadServiceImpl implements UploadService {
 
     @Override
     public boolean uploadData(ApiParamNameEnum api, GetParam param) {
+        if (api == null) {
+            throw new NullPointerException("无对应API接口");
+        }
         try {
             String url = host + interfaceStr;
             Map<String, Object> map = new HashMap<>();
@@ -141,7 +144,7 @@ public class UploadServiceImpl implements UploadService {
     }
 
     @Override
-    public boolean uploadPatrolResult(PatrolResult result) throws InterruptedException, FileNotFoundException {
+    public boolean uploadPatrolResult(PatrolResult result) throws InterruptedException, FileNotFoundException, NullPointerException {
         // 上传图片或者视频到环茂平台
         String fileName = uploadResource(result);
         if (StrUtil.isBlank(fileName)) {
