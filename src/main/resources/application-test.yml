@@ -29,3 +29,4 @@ ftp:
   algorithmPath: /home/robot/data/log
 server:
   port: 8091
+  isUseFfmpeg: false

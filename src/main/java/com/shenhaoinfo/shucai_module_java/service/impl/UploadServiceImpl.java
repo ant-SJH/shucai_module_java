@@ -52,13 +52,18 @@ public class UploadServiceImpl implements UploadService {
     @Value("${ftp.algorithmPath:/home/robot/data/log}")
     private String algorithmPath;
 
+    @Value("${server.isUseFfmpeg: false}")
+    private boolean isUseFfmpeg;
+
     @Resource
     private SqlService sqlService;
 
     @Override
     public String uploadFile(String filePath) throws FileNotFoundException {
         try {
-            filePath = FFmpegUtil.convertVideo2H264(filePath);
+            if (isUseFfmpeg) {
+                filePath = FFmpegUtil.convertVideo2H264(filePath);
+            }
             File file = new File(filePath);
             String url = host + "uploadFile?param_name=upLoadFile";
             String result = HttpRequest.post(url)
